@@ -1,0 +1,189 @@
+:root {
+  --bg: #f7f9fb;
+  --card: #ffffff;
+  --primary: #2563eb; /* azul primário */
+  --primary-hover: #1f4ed8;
+  --secondary: #6c757d;
+  --success: #28a745;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --info: #0dcaf0;
+  --gradient-primary: linear-gradient(90deg, #4f46e5, #2563eb);
+  --gradient-btn: linear-gradient(90deg, #2563eb, #4f46e5);
+  --gradient-login: linear-gradient(135deg, #4f46e5, #2563eb);
+}
+
+body.bg-page {
+  background: linear-gradient(90deg, #9692d8, #2563eb);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: #0f1724;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#page-content-wrapper{
+    background: var(--bg);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: #0f1724;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ----------------- Sidebar ----------------- */
+#wrapper {
+  display: flex;
+}
+
+#sidebar-wrapper {
+  width: 220px;
+  min-height: 100vh;
+  background: var(--gradient-primary);
+  color: #fff;
+}
+
+#sidebar-wrapper .sidebar-heading {
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+#sidebar-wrapper .list-group-item {
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+
+#sidebar-wrapper .list-group-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ----------------- Topbar ----------------- */
+.navbar {
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* ----------------- Botões ----------------- */
+.btn-primary {
+  background: var(--gradient-btn);
+  border: none;
+  color: #fff;
+  transition: all 0.3s;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(90deg, #1e3a8a, #2563eb);
+}
+
+/* ----------------- Badges ----------------- */
+.badge.bg-success { background: #28a745 !important; }
+.badge.bg-warning { background: #ffc107 !important; color: #212529 !important; }
+.badge.bg-secondary { background: #6c757d !important; }
+
+.badge.bg-completed { background: linear-gradient(90deg, #28a745, #85e085); }
+.badge.bg-inprogress { background: linear-gradient(90deg, #ffc107, #ffd966); color: #212529; }
+.badge.bg-pending { background: linear-gradient(90deg, #6c757d, #a9a9a9); }
+
+/* ----------------- Table ----------------- */
+.table thead th {
+  border-bottom: 0;
+  font-weight: 600;
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+}
+
+/* ----------------- Modals ----------------- */
+.modal-content {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ----------------- Pesquisa ----------------- */
+#searchInput {
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  padding-left: 15px;
+}
+
+/* ----------------- Login ----------------- */
+.login-card {
+  width: 420px;
+  border: none;
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+.login-card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: var(--gradient-login);
+  transform: rotate(25deg);
+  z-index: -1;
+  opacity: 0.2;
+  border-radius: 20px;
+}
+
+.login-card .card-body {
+  padding: 3rem 2rem;
+}
+
+.login-card h1.display-6 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #4f46e5, #2563eb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.login-card .btn-primary {
+  width: 100%;
+  border-radius: 50px;
+  padding: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
+
+.login-card .form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+}
+
+/* ----------------- Typography ----------------- */
+h1, h5 {
+  font-weight: 600;
+}
+
+.fw-medium {
+  font-weight: 600;
+}
+
+/* ----------------- Truncate ----------------- */
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ----------------- Responsivo ----------------- */
+@media (max-width: 768px) {
+  #sidebar-wrapper { width: 60px; }
+  #sidebar-wrapper .sidebar-heading,
+  #sidebar-wrapper .list-group-item { font-size: 0.85rem; padding: 0.6rem 0.5rem; }
+  #searchInput { width: 150px; }
+  .table-responsive { font-size: 0.95rem; }
+  .login-card { width: 90%; }
+}
