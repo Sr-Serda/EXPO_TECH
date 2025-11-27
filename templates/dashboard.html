@@ -14,100 +14,209 @@
 
     <div class="d-flex" id="wrapper">
 
-      <!-- Sidebar -->
-      <div class="bg-white border-end" id="sidebar-wrapper">
-        <div class="sidebar-heading fw-semibold py-4 px-3">NovaDesk</div>
+      <div class="border-end" id="sidebar-wrapper">
+        <div class="sidebar-heading fw-semibold py-4 px-3 text-white">NovaDesk</div>
+        
+        <div class="px-3 mb-3">
+             <button class="btn btn-light w-100 shadow-sm text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#newTicketModal">
+                Novo Ticket
+             </button>
+        </div>
+
         <div class="list-group list-group-flush">
-          <button class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#newTicketModal">
-            <i class="bi bi-plus-lg me-2"></i>Novo Ticket
-          </button>
-          <a href="{{ url_for('logout') }}" class="list-group-item list-group-item-action">
+          <a href="#" class="list-group-item list-group-item-action active-nav">
+             <i class="bi bi-card-list me-2"></i>Tickets
+          </a>
+           <a href="{{ url_for('logout') }}" class="list-group-item list-group-item-action">
             <i class="bi bi-box-arrow-right me-2"></i>Logout
           </a>
         </div>
       </div>
 
-      <!-- Page content -->
       <div id="page-content-wrapper" class="flex-grow-1">
 
-        <!-- Topbar -->
-        <nav class="navbar navbar-light bg-white border-bottom px-3">
-          <form class="d-flex w-50" method="GET" action="{{ url_for('dashboard') }}">
-            <input id="searchInput" class="form-control me-2" type="search" placeholder="Pesquisar tickets..." aria-label="Search" name="q">
-            <button class="btn btn-outline-primary" type="submit"><i class="bi bi-search"></i></button>
-          </form>
-          <div class="ms-auto d-flex align-items-center gap-3">
-            <div class="text-end">
-              <div class="small text-muted">Logado como</div>
-              <div class="fw-medium">{{ current_user.username }}</div>
+        <nav class="navbar navbar-light bg-transparent px-4 py-3">
+            <div class="d-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm w-50 mx-auto">
+                 <i class="bi bi-search text-muted me-2"></i>
+                 <input id="searchInput" class="form-control border-0 p-0 shadow-none" type="text" placeholder="Pesquisar..." style="background:transparent;">
             </div>
-          </div>
+
+            <div class="ms-3 d-flex gap-2">
+                 <button class="btn btn-white bg-white shadow-sm fw-medium filter-btn" data-filter="Completed">Completo</button>
+                 <button class="btn btn-white bg-white shadow-sm fw-medium filter-btn" data-filter="In Progress">Em Progresso</button>
+            </div>
         </nav>
 
-        <!-- Main content -->
-        <main class="container-fluid p-4">
-          <h5 class="mb-3">Tickets</h5>
-
+        <main class="container-fluid px-4">
+          
           {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
               {% for category, message in messages %}
-                <div class="alert alert-{{ category }} small" role="alert">{{ message }}</div>
+                <div class="alert alert-{{ category }} small mt-3" role="alert">{{ message }}</div>
               {% endfor %}
             {% endif %}
           {% endwith %}
 
-          <div class="card shadow-sm">
+          <div class="card shadow-sm mt-3 border-0">
             <div class="card-body p-0">
-              <div class="table-responsive">
-                <table id="ticketsTable" class="table mb-0 align-middle">
-                  <thead class="table-light">
-                    <tr>
-                      <th class="ps-4">#ID</th>
-                      <th>Assunto</th>
-                      <th>Descrição</th>
-                      <th>Solicitante</th>
-                      <th>Status</th>
-                      <th class="pe-4 text-end">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                
+                <div class="d-flex bg-primary-light p-3 fw-bold text-muted small border-bottom align-items-center">
+                    <div style="width: 70px;">#ID</div>
+                    <div class="flex-grow-1 ps-2">Assunto</div> <div style="width: 150px;">Categoria</div>
+                    <div style="width: 150px;">Usuário</div> <div style="width: 120px;">Progresso</div>
+                    <div style="width: 50px;" class="text-end">Opções</div>
+                </div>
+
+                <div id="ticketsList">
                     {% for o in orders %}
-                    <tr>
-                      <td class="ps-4">{{ o.id }}</td>
-                      <td>{{ o.title }}</td>
-                      <td class="text-truncate" style="max-width: 320px;">{{ o.description }}</td>
-                      <td>{{ o.owner.username }}</td>
-                      <td>
-                        {% if o.status == "Completed" %}
-                            <span class="badge rounded-pill bg-completed">Concluído</span>
-                        {% elif o.status == "In Progress" %}
-                            <span class="badge rounded-pill bg-inprogress">Em Progresso</span>
-                        {% else %}
-                            <span class="badge rounded-pill bg-pending">Pendente</span>
-                        {% endif %}
-                        </td>
+                    <div class="ticket-row border-bottom" data-status="{{ o.status }}">
+                        
+                        <div class="d-flex align-items-center p-3 ticket-header-row">
+                            
+                            <div class="d-flex flex-grow-1 align-items-center text-decoration-none text-dark clickable-area" 
+                                 type="button" 
+                                 data-bs-toggle="collapse" 
+                                 data-bs-target="#collapse{{o.id}}" 
+                                 aria-expanded="false">
+                                
+                                <div style="width: 70px;" class="text-muted fw-bold">#{{ o.id }}</div>
+                                <div class="flex-grow-1 ps-2 fw-medium text-truncate">
+                                    <i class="bi bi-caret-right-fill small text-muted me-1"></i> {{ o.title }}
+                                </div>
+                                <div style="width: 150px;" class="text-muted text-truncate">{{ o.category or '-' }}</div>
+                                <div style="width: 150px;" class="text-muted text-truncate">{{ o.owner.username }}</div>
+                                <div style="width: 120px;">
+                                    {% if o.status == 'Completed' %}
+                                        <span class="text-success fw-bold small">Completo</span>
+                                    {% elif o.status == 'In Progress' %}
+                                        <span class="text-warning fw-bold small">Em Progresso</span>
+                                    {% else %}
+                                        <span class="text-secondary fw-bold small">Pendente</span>
+                                    {% endif %}
+                                </div>
+                            </div>
 
-                      <td class="pe-4 text-end">
-                        <button class="btn btn-sm btn-outline-primary me-1"
-                                data-bs-toggle="modal"
-                                data-bs-target="#detailModal"
-                                data-order-id="{{ o.id }}"
-                                data-order-title="{{ o.title }}"
-                                data-order-desc="{{ o.description }}"
-                                data-order-user="{{ o.owner.username }}"
-                                data-order-status="{{ o.status }}">
-                          Ver
-                        </button>
+                            <div style="width: 50px;" class="text-end position-relative">
+                                {% if current_user.role == 'admin' %}
+                                    <div class="dropdown">
+                                        <button class="btn btn-link text-muted p-0 text-decoration-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                            <li><h6 class="dropdown-header">Alterar Status</h6></li>
+                                            
+                                            <li>
+                                                <form action="{{ url_for('update_status', order_id=o.id) }}" method="POST">
+                                                    <input type="hidden" name="status" value="Pending">
+                                                    <button class="dropdown-item" type="submit">
+                                                        Pendente
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <form action="{{ url_for('update_status', order_id=o.id) }}" method="POST">
+                                                    <input type="hidden" name="status" value="In Progress">
+                                                    <button class="dropdown-item" type="submit">
+                                                        Em Progresso
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <form action="{{ url_for('update_status', order_id=o.id) }}" method="POST">
+                                                    <input type="hidden" name="status" value="Completed">
+                                                    <button class="dropdown-item" type="submit">
+                                                       Completo
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            
+                                            <li><hr class="dropdown-divider"></li>
+                                            
+                                            <li>
+                                                <a href="{{ url_for('delete_order', order_id=o.id) }}" class="dropdown-item text-danger">
+                                                    <i class="bi bi-trash me-2"></i>Excluir
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted small"><i class="bi bi-lock"></i></span>
+                                {% endif %}
+                            </div>
 
-                        {% if current_user.role == 'admin' %}
-                          <a href="{{ url_for('delete_order', order_id=o.id) }}" onclick="return confirm('Excluir ticket #{{ o.id }}?')" class="btn btn-sm btn-danger">Excluir</a>
-                        {% endif %}
-                      </td>
-                    </tr>
+                        </div>
+
+                        <div class="collapse bg-light" id="collapse{{o.id}}">
+                            <div class="p-4 border-top">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="mb-3 border-bottom pb-2">
+                                            <h5>{{ o.title }}</h5>
+                                        </div>
+
+                                        <div class="chat-container border rounded bg-white p-3 mb-3" style="height: 350px; overflow-y: auto;">
+                                            <div class="text-muted small mb-3 text-center">Histórico de Conversa</div>
+                                            
+                                            <div class="chat-message {% if current_user.id == o.owner_id %}message-mine{% else %}message-other{% endif %}">
+                                                <div class="sender-name small text-muted">
+                                                    {{ o.owner.username }} (Autor)
+                                                </div>
+                                                <div class="message-bubble">
+                                                    {{ o.description }}
+                                                    {% if o.attachment %}
+                                                        <div class="mt-2 pt-2 border-top border-white-50">
+                                                            <a href="{{ url_for('static', filename='uploads/' + o.attachment) }}" target="_blank" class="text-reset text-decoration-none small">
+                                                                <i class="bi bi-paperclip"></i> Anexo
+                                                            </a>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+
+                                            {% for msg in o.messages %}
+                                                <div class="chat-message {% if msg.sender_id == current_user.id %}message-mine{% else %}message-other{% endif %}">
+                                                    <div class="sender-name small text-muted">
+                                                        {% if msg.sender_id == current_user.id %}Eu{% else %}{{ msg.sender.username }}{% endif %}
+                                                    </div>
+                                                    <div class="message-bubble">
+                                                        {% if msg.content %}
+                                                            <div>{{ msg.content }}</div>
+                                                        {% endif %}
+                                                        {% if msg.attachment %}
+                                                            <div class="{% if msg.content %}mt-2 pt-2 border-top border-white-50{% endif %}">
+                                                                <a href="{{ url_for('static', filename='uploads/' + msg.attachment) }}" target="_blank" class="text-reset text-decoration-none small">
+                                                                    <i class="bi bi-paperclip"></i> Ver Anexo
+                                                                </a>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+
+                                        <form action="{{ url_for('add_message', order_id=o.id) }}" method="POST" enctype="multipart/form-data">
+                                            <div class="input-group">
+                                                <label class="btn btn-outline-secondary" for="chatFile{{o.id}}">
+                                                    <i class="bi bi-paperclip"></i>
+                                                </label>
+                                                <input type="file" name="chat_file" id="chatFile{{o.id}}" class="d-none chat-file-input" data-feedback="fileFeedback{{o.id}}">
+                                                
+                                                <input type="text" name="content" class="form-control" placeholder="Escreva algo...">
+                                                <button class="btn btn-primary" type="submit">Enviar</button>
+                                            </div>
+                                            <div id="fileFeedback{{o.id}}" class="small text-primary mt-1" style="display:none;">
+                                                <i class="bi bi-file-earmark"></i> <span class="filename"></span>
+                                            </div>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     {% endfor %}
-                  </tbody>
-                </table>
-              </div>
+                </div>
+
             </div>
           </div>
 
@@ -116,71 +225,43 @@
 
     </div>
 
-    <!-- Detail modal -->
-    <div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal fade" id="newTicketModal" tabindex="-1">
       <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Detalhes do Ticket</h5>
+        <div class="modal-content bg-primary-subtle">
+          <div class="modal-header border-0">
+            <h5 class="modal-title fw-normal">Novo Ticket</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
-
-          <div class="modal-body">
-            <div id="ticketDetails"></div>
-
-            {% if current_user.role == 'admin' %}
-            <hr>
-            <form id="statusForm" method="POST">
-              <div class="row g-2 align-items-center">
-                <div class="col-auto">
-                  <label class="col-form-label small">Alterar status</label>
-                </div>
-                <div class="col-auto">
-                  <select name="status" class="form-select form-select-sm">
-                    <option value="Pending">Pending</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                  </select>
-                </div>
-                <div class="col-auto">
-                  <button type="submit" class="btn btn-success btn-sm">Salvar</button>
-                </div>
-              </div>
-            </form>
-            {% endif %}
-          </div>
-
-          <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- New ticket modal -->
-    <div class="modal fade" id="newTicketModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <form method="POST" action="{{ url_for('create_order') }}">
-            <div class="modal-header">
-              <h5 class="modal-title">Novo Ticket</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
+          
+          <form method="POST" action="{{ url_for('create_order') }}" enctype="multipart/form-data">
             <div class="modal-body">
+              
               <div class="mb-3">
-                <label class="form-label small">Assunto</label>
-                <input name="title" class="form-control" required>
+                <label class="form-label text-muted small">Assunto</label>
+                <input name="title" class="form-control bg-primary-light border-primary-subtle" required>
               </div>
+
               <div class="mb-3">
-                <label class="form-label small">Descrição</label>
-                <textarea name="description" rows="4" class="form-control" required></textarea>
+                <label class="form-label text-muted small">Categoria</label>
+                <input name="category" class="form-control bg-primary-light border-primary-subtle" placeholder="Ex: Hardware, Software..." required>
               </div>
+
+              <div class="mb-3">
+                <label class="form-label text-muted small">Descrição do Problema</label>
+                <textarea name="description" rows="5" class="form-control bg-primary-light border-primary-subtle" required></textarea>
+              </div>
+
+              <div class="upload-area p-4 text-center border rounded bg-primary-light border-primary-subtle" style="position: relative;">
+                 <i class="bi bi-cloud-upload text-primary fs-1"></i>
+                 <div class="text-muted mt-2 small" id="newTicketFileLabel">Clique para anexar um arquivo</div>
+                 <input type="file" name="file" id="newTicketFile" class="form-control" style="position: absolute; top:0; left:0; height: 100%; opacity: 0; cursor: pointer;">
+              </div>
+
             </div>
 
-            <div class="modal-footer">
-              <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button class="btn btn-primary" type="submit">Criar</button>
+            <div class="modal-footer border-0">
+              <button class="btn btn-secondary text-white" data-bs-dismiss="modal">Cancelar</button>
+              <button class="btn btn-primary px-4" type="submit">Criar Ticket</button>
             </div>
           </form>
         </div>
