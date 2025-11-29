@@ -1,58 +1,84 @@
-document.addEventListener('DOMContentLoaded', function () {
-  var detailModal = document.getElementById('detailModal');
-  if (!detailModal) return;
-
-  detailModal.addEventListener('show.bs.modal', function (event) {
-    var button = event.relatedTarget;
-    var id = button.getAttribute('data-order-id');
-    var title = button.getAttribute('data-order-title');
-    var desc = button.getAttribute('data-order-desc');
-    var user = button.getAttribute('data-order-user');
-    var status = button.getAttribute('data-order-status');
-
-    var html = `
-      <h5 class="mb-1">${title} <small class="text-muted">#${id}</small></h5>
-      <div class="small text-muted mb-2">Solicitante: ${user}</div>
-      <div class="mb-3"><strong>Descrição</strong><p class="mb-0">${desc}</p></div>
-      <div><strong>Status:</strong> ${status}</div>
-    `;
-    document.getElementById('ticketDetails').innerHTML = html;
-
-    var statusForm = document.getElementById('statusForm');
-    if (statusForm) {
-      statusForm.action = '/update_status/' + id;
-      // pre-select current status
-      var sel = statusForm.querySelector('select[name="status"]');
-      if (sel) {
-        for (var i=0;i<sel.options.length;i++){
-          if(sel.options[i].value === status) sel.selectedIndex = i;
-        }
-      }
-    }
-  });
-});
-
-
 document.addEventListener('DOMContentLoaded', function() {
-  var searchInput = document.getElementById('searchInput');
-  var table = document.getElementById('ticketsTable');
-  if (!searchInput || !table) return;
+  
+  // ----------------- Filter Logic -----------------
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const ticketRows = document.querySelectorAll('.ticket-row');
 
-  searchInput.addEventListener('input', function() {
-    var filter = searchInput.value.toLowerCase();
-    var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const filterStatus = btn.getAttribute('data-filter');
+        const isActive = btn.classList.contains('active');
 
-    Array.from(rows).forEach(function(row) {
-      var cells = row.getElementsByTagName('td');
-      var match = false;
+        // Reset all buttons
+        filterBtns.forEach(b => b.classList.remove('active'));
 
-      Array.from(cells).forEach(function(cell) {
-        if (cell.textContent.toLowerCase().indexOf(filter) > -1) {
-          match = true;
+        // If clicking active button, turn it off (show all)
+        if (isActive) {
+             ticketRows.forEach(row => row.style.display = '');
+        } else {
+             // Activate button
+             btn.classList.add('active');
+             
+             // Filter rows
+             ticketRows.forEach(row => {
+                 const rowStatus = row.getAttribute('data-status');
+                 if (rowStatus === filterStatus) {
+                     row.style.display = '';
+                 } else {
+                     row.style.display = 'none';
+                 }
+             });
         }
-      });
-
-      row.style.display = match ? '' : 'none';
     });
   });
+
+  // ----------------- Search Logic -----------------
+  var searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+        var filter = searchInput.value.toLowerCase();
+        
+        ticketRows.forEach(function(row) {
+            var text = row.querySelector('.ticket-header').textContent.toLowerCase();
+            if (text.indexOf(filter) > -1) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+  }
+
+  // ----------------- File Feedback Logic (New Ticket) -----------------
+  const newTicketFile = document.getElementById('newTicketFile');
+  const newTicketFileLabel = document.getElementById('newTicketFileLabel');
+  
+  if(newTicketFile){
+      newTicketFile.addEventListener('change', function(){
+          if (this.files && this.files.length > 0) {
+              newTicketFileLabel.innerHTML = `<strong>Arquivo selecionado:</strong> ${this.files[0].name}`;
+              newTicketFileLabel.classList.add('text-success');
+          } else {
+              newTicketFileLabel.innerHTML = 'Clique para anexar um arquivo';
+              newTicketFileLabel.classList.remove('text-success');
+          }
+      });
+  }
+
+  // ----------------- File Feedback Logic (Chat) -----------------
+  const chatFileInputs = document.querySelectorAll('.chat-file-input');
+  chatFileInputs.forEach(input => {
+      input.addEventListener('change', function() {
+          const feedbackId = this.getAttribute('data-feedback');
+          const feedbackEl = document.getElementById(feedbackId);
+          
+          if(feedbackEl && this.files && this.files.length > 0) {
+              feedbackEl.style.display = 'block';
+              feedbackEl.querySelector('.filename').textContent = this.files[0].name;
+          } else if (feedbackEl) {
+              feedbackEl.style.display = 'none';
+          }
+      });
+  });
+
 });
